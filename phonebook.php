@@ -80,7 +80,7 @@ case "print":
 	//$argv[2] - маска имени
 	//$argv[3] - маска телефона
 	$err = base_get_list_by_mask($argv[2], $argv[3]);
-switch ($err) {
+	switch ($err) {
 	case 0:
 		echo "Phonebook is empty\n";
 		break;
@@ -152,6 +152,7 @@ function print_help()
  */
 function read_base() 
 {
+	$content;
 	$data = array();	
 	$filename = "base.txt";
 	if (!file_exists($filename))
@@ -159,9 +160,12 @@ function read_base()
 	
 	$content = file_get_contents($filename);
 	$rows = explode("\n", $content);
+	$rows = array_diff($rows, array(''));
 	foreach ($rows as $row) {
 		$row = trim($row);
 		$columns = explode(';', $row);
+		$columns = array_diff($columns, array(''));
+		print_r($columns);	
 		$data[] = $columns;
 	}	
 	return $data;
@@ -177,11 +181,10 @@ function write_base($array)
 	$content;
 	foreach ($array as $row) {
 		foreach ($row as $column) 
-			$content .= trim($column) . ';';
-		$content = substr($content, 0, -1); // убираю последние ";" в строке 
+			$content .= trim($column) . ';'; 
 		$content .= "\n";
 	}
-	return file_put_contents("base.txt", substr($content, 0, -1)); // если не обрезаю, не работает, интуитивно, могу вечером объяснить
+	return file_put_contents("base.txt", $content);
 }
 
 
@@ -215,9 +218,9 @@ function base_add_item($name, $phone)
 			$max++;
 			}
 		}
-	$data[$max][0] = $max;
-	$data[$max][1] = $name;
-	$data[$max][2] = $phone;
+	$data[$max]['id'] = $max;
+	$data[$max]['name'] = $name;
+	$data[$max]['phone'] = $phone;
 	return write_base($data);
 }
 
@@ -228,11 +231,11 @@ function base_add_item($name, $phone)
  * @param $name имя которое нужно отредактировать
  * @param $phone телефон который нужно отредактировать
  * @return 0 в случе если база пуста или не существует
- * @return 1 в случе если id введен некорректно или отсутствует
- * @return 2 в случе если имя не введено
- * @return 3 в случе если телефон введен некорректно или отсутствует
- * @return 4 в случе если запись с таким телефоном уже существует
- * @return 5 в случе если запись с таким id отсутствует
+ * 		   1 в случе если id введен некорректно или отсутствует
+ * 		   2 в случе если имя не введено
+ *		   3 в случе если телефон введен некорректно или отсутствует
+ * 		   4 в случе если запись с таким телефоном уже существует
+ *		   5 в случе если запись с таким id отсутствует
  */
 function base_edit_item($id, $name, $phone)
 {
@@ -284,7 +287,7 @@ function base_get_item_by_id($id)
 	if (!is_numeric($id) || !isset($id)) 
 		return 1;
 	
-	$index; // в строке: 176: не корректная инициализация $index; (не задано значение) а мне нечем его задавать
+	$index = NULL;
 	foreach ($data as $key=>$rows)
 		if($rows[0] == $id) {
 			$index = $key;
@@ -311,7 +314,6 @@ function base_get_item_by_id($id)
  */		
 function base_del_item($id)
 {
-	
 	$data = read_base();
 	if($data == 0)
 		return 0;
@@ -425,9 +427,9 @@ function base_get_list_by_mask($name_mask, $phone_mask)
 	$flag2 = 0;
 	
 	foreach($base as $row) {
-		 if(check_for_mask($row[1],$name_mask)) {
+		 if(check_for_mask($row[1], $name_mask)) {
 		 	$flag1++;
-		 	if (check_for_mask($row[2],$phone_mask)) {
+		 	if(check_for_mask($row[2], $phone_mask)) {
 		 		$flag2++;
 		 		$result[] = $row;
 			}	
