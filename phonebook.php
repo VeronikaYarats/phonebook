@@ -152,7 +152,6 @@ function print_help()
  */
 function read_base() 
 {
-	$content;
 	$data = array();	
 	$filename = "base.txt";
 	if (!file_exists($filename))
@@ -177,7 +176,7 @@ function read_base()
  */
 function write_base($array)
 {
-	$content;
+	$content = '';
 	foreach ($array as $row) {
 		foreach ($row as $column) 
 			$content .= trim($column) . ';'; 
