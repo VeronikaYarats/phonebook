@@ -165,7 +165,6 @@ function read_base()
 		$row = trim($row);
 		$columns = explode(';', $row);
 		$columns = array_diff($columns, array(''));
-		print_r($columns);	
 		$data[] = $columns;
 	}	
 	return $data;
@@ -412,7 +411,6 @@ function check_for_mask($pattern, $str)
  * @return 0 в случае если база пуста или отсутствует
  * @return 1 в случае если запись с именем не найдена
  * @return 2 в случае если запись с телефоном не найдена
- * @return 3 в случвае если не задано имя или телефон
  * @return массив массивов[идентивикатор, имя, телефон]
  */
 function base_get_list_by_mask($name_mask, $phone_mask)
@@ -421,8 +419,7 @@ function base_get_list_by_mask($name_mask, $phone_mask)
 	$result = array();
 	if($base == 0)
 		return  0;
-	if(!isset($name_mask) || !isset($phone_mask))
-		return 3;
+		
 	$flag1 = 0;
 	$flag2 = 0;
 	
